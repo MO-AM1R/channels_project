@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "826647869131",
+    "project_id": "channels-88b3c",
+    "storage_bucket": "channels-88b3c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826647869131:android:ec2ffeaedaf2a2a5814d4e",
+        "android_client_info": {
+          "package_name": "com.example.task.channels"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTRMnMs9suBVOUuxqh4dXDu2dRSmV8AMQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
