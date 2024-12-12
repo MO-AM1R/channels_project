@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:channels/main.dart';
 import 'package:channels/network/firebase_auth_services.dart';
 import 'package:channels/components/custom_text_field.dart';
@@ -6,7 +7,8 @@ import 'package:channels/components/black_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final Function loggedIn;
+  const LoginPage({super.key, required this.loggedIn});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -18,28 +20,44 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isLoading = false;
   String error = '';
+  late Timer delay;
 
   Future<void> loginProcess() async {
     setState(() {
       isLoading = true;
     });
 
-    // try {
-    //   if (email.text.isNotEmpty && password.text.isNotEmpty) {
+    try {
+      if (email.text.isNotEmpty && password.text.isNotEmpty) {
         await FirebaseAuthServices.loginWithEmail(email.text, password.text);
-      // } else {
-      //   error = 'Please fill all fields';
-      // }
-    // }
-    // catch(exception){
-    //   setState(() {
-    //     error = 'Incorrect Email or Password';
-    //   });
-    // }
+        widget.loggedIn();
+      } else {
+        setState(() {
+          error = 'Please fill all fields';
+        });
+      }
+    }
+    catch(exception){
+      setState(() {
+        error = 'Incorrect Email or Password';
+      });
+    }
+
+    delay = Timer(const Duration(seconds: 2), () {
+      setState(() {
+        error = '';
+      });
+    });
 
     setState(() {
       isLoading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    delay.cancel();
   }
 
   @override

@@ -5,11 +5,7 @@ class FirebaseAuthServices {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
 
   static Future<void> loginWithEmail(String email, String password) async {
-    try {
-      await _auth.signInWithEmailAndPassword(email: email, password: password);
-    } catch (exception) {
-      log(exception.toString());
-    }
+    await _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
   static Future<void> registerWithEmail(String email, String password) async{

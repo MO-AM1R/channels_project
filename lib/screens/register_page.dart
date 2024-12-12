@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:channels/components/black_button.dart';
 import 'package:channels/components/custom_text_field.dart';
 import 'package:channels/components/login_options.dart';
@@ -22,6 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   bool isLoading = false;
   String error = '';
+  late Timer delay;
 
   Future<void> registerProcess() async {
     setState(() {
@@ -58,7 +60,7 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     }
 
-    Future<void>.delayed(const Duration(seconds: 2), () {
+    delay = Timer(const Duration(seconds: 2), () {
       setState(() {
         error = '';
       });
@@ -67,6 +69,12 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    delay.cancel();
   }
 
   @override
