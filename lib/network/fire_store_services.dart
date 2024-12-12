@@ -6,26 +6,26 @@ import 'package:channels/models/message.dart';
 import 'package:channels/models/user.dart';
 import 'package:channels/network/firebase_auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 
-class FirebaseServices {
+class FireStoreServices {
   static final FirebaseFirestore _fStore = FirebaseFirestore.instance;
-  static final FirebaseDatabase _realTimeDB = FirebaseDatabase.instance;
 
-  static Future<void> login(String userId) async {
+
+  static Future<void> getUserInfo(String userId) async {
     final userDoc = await _fStore.collection('users').doc(userId).get();
 
-    List<Channel> channels = [];
+    List<Channel> subscribedChannels = [];
     List channelRefs = userDoc.get('subscribedChannels');
 
     for (DocumentReference channelRef in channelRefs) {
-      channels.add(await extractChannel(channelRef));
+      String id = (await channelRef.get()).get('id');
+      subscribedChannels.add(channels.firstWhere((channel) => channel.id == id));
     }
 
     user = User(
         userName: userDoc.get('userName'),
         id: userDoc.get('id'),
-        subscribedChannels: channels);
+        subscribedChannels: subscribedChannels);
 
     initialized = true;
   }
@@ -87,45 +87,23 @@ class FirebaseServices {
     channels = temp;
   }
 
-  static addMessage(Message message, String chatId, String messageId) {
-    final realtimeDBRef = _realTimeDB.ref('chats/$chatId/messages');
-
-    realtimeDBRef.child('message$messageId').set({
-      "body": message.body,
-      "date": message.time.millisecondsSinceEpoch,
-      "userName": message.userName,
-    });
-
-    final chatMetaRef = _realTimeDB.ref('chats/$chatId');
-    chatMetaRef.update({
-      "id": chatId,
-    });
-  }
-
   static addMessagesToFireStore(List<Message> messages, String chatId) async {
-    // Get a reference to the FireStore collection for messages
     CollectionReference messagesRef = _fStore.collection('messages');
-
-    // Get a reference to the chat document where the messages will be stored
     DocumentReference chatDocRef = _fStore.collection('chats').doc(chatId);
 
     try {
       List<DocumentReference> messageRefs = [];
 
-      // Loop through each message, store it as a document in the 'messages' collection
       for (var message in messages) {
-        // Add the message to the global 'messages' collection
         DocumentReference messageRef = await messagesRef.add({
           'body': message.body,
           'date': message.time,
           'userName': message.userName,
         });
 
-        // Add the message reference to the list
         messageRefs.add(messageRef);
       }
 
-      // Update the 'messages' field in the chat document with references to the message documents
       await chatDocRef.update({
         'messages': FieldValue.arrayUnion(messageRefs),
       });

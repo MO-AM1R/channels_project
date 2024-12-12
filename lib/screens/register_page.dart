@@ -5,7 +5,7 @@ import 'package:channels/constants.dart';
 import 'package:channels/main.dart';
 import 'package:channels/models/user.dart';
 import 'package:channels/network/firebase_auth_services.dart';
-import 'package:channels/network/firebase_services.dart';
+import 'package:channels/network/fire_store_services.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
         await FirebaseAuthServices.registerWithEmail(email.text, password.text);
 
-        await FirebaseServices.addUser(
+        await FireStoreServices.addUser(
             FirebaseAuthServices.getUserId, userName.text);
 
         user = User(

@@ -1,5 +1,5 @@
-import 'package:channels/main.dart';
 import 'package:channels/models/channel.dart';
+import 'package:channels/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 class ChannelListTile extends StatelessWidget {
@@ -10,7 +10,12 @@ class ChannelListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: (){
-        navigationKey.currentState!.pushNamed('/chat', arguments: channel);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(channel: channel),
+          ),
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(10),

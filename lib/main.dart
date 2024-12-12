@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:channels/network/firebase_services.dart';
+import 'package:channels/models/channel.dart';
+import 'package:channels/network/fire_store_services.dart';
 import 'package:channels/network/messaging_api.dart';
 import 'package:channels/screens/chat_screen.dart';
 import 'package:channels/screens/home_screen.dart';
@@ -69,7 +70,7 @@ Future<void> main() async {
   );
 
   await _notificationInit();
-  await FirebaseServices.setAllChannels();
+  await FireStoreServices.setAllChannels();
 
   runApp(const MyApp());
 }
@@ -82,11 +83,24 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-      routes: {
-        '/': (context) => const AuthHandler(),
-        '/register': (context) => const RegisterPage(),
-        '/home': (context) => const HomeScreen(),
-        '/chat': (context) => const ChatScreen(),
+      onGenerateRoute: (RouteSettings settings) {
+        switch (settings.name) {
+          case '/':
+            return MaterialPageRoute(builder: (context) => const AuthHandler());
+          case '/register':
+            return MaterialPageRoute(builder: (context) => const RegisterPage());
+          case '/home':
+            return MaterialPageRoute(builder: (context) => const HomeScreen());
+          case '/chat':
+            final channel = settings.arguments as Channel;
+            return MaterialPageRoute(
+              builder: (context) => ChatScreen(channel: channel),
+            );
+          default:
+            return MaterialPageRoute(
+              builder: (context) => const AuthHandler(),
+            );
+        }
       },
       initialRoute: '/',
       navigatorKey: navigationKey,

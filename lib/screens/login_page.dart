@@ -24,17 +24,18 @@ class _LoginPageState extends State<LoginPage> {
       isLoading = true;
     });
 
-    try {
-      if (email.text.isNotEmpty && password.text.isNotEmpty) {
+    // try {
+    //   if (email.text.isNotEmpty && password.text.isNotEmpty) {
         await FirebaseAuthServices.loginWithEmail(email.text, password.text);
-        return;
-      } else {
-        error = 'Please fill all fields';
-      }
-    }
-    catch(exception){
-      error = 'Incorrect Email or Password';
-    }
+      // } else {
+      //   error = 'Please fill all fields';
+      // }
+    // }
+    // catch(exception){
+    //   setState(() {
+    //     error = 'Incorrect Email or Password';
+    //   });
+    // }
 
     setState(() {
       isLoading = false;

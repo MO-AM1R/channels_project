@@ -3,7 +3,7 @@ import 'package:channels/components/channel_card.dart';
 import 'package:channels/constants.dart';
 import 'package:channels/models/channel.dart';
 import 'package:channels/models/chat.dart';
-import 'package:channels/network/firebase_services.dart';
+import 'package:channels/network/fire_store_services.dart';
 import 'package:flutter/material.dart';
 
 class Channels extends StatefulWidget {
@@ -30,7 +30,7 @@ class _ChannelsState extends State<Channels> {
 
   void removeChannel(int index) {
     Channel channel = channels.removeAt(index);
-    FirebaseServices.removeChannel(channel);
+    FireStoreServices.removeChannel(channel);
     setState(() {});
   }
 
@@ -90,7 +90,7 @@ class _ChannelsState extends State<Channels> {
   void dispose() {
     super.dispose();
     if (changed) {
-      FirebaseServices.updateSubscribedChannels();
+      FireStoreServices.updateSubscribedChannels();
     }
   }
 
@@ -105,7 +105,7 @@ class _ChannelsState extends State<Channels> {
         imageUrl: imageUrl,
         chat: chat);
 
-    FirebaseServices.addChannel(channel);
+    FireStoreServices.addChannel(channel);
     channels.add(channel);
     setState(() {});
   }
