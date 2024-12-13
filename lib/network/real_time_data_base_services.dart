@@ -1,3 +1,4 @@
+import 'package:channels/models/channel.dart';
 import 'package:channels/models/message.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -19,5 +20,10 @@ class RealTimeDataBaseServices{
     chatMetaRef.update({
       "id": chatId,
     });
+  }
+
+  static void removeChannel(Channel channel) async {
+    final realtimeDBRef = _realTimeDB.ref('chats/${channel.chat.id}');
+    realtimeDBRef.remove();
   }
 }

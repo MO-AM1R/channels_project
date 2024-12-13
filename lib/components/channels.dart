@@ -4,6 +4,7 @@ import 'package:channels/constants.dart';
 import 'package:channels/models/channel.dart';
 import 'package:channels/models/chat.dart';
 import 'package:channels/network/fire_store_services.dart';
+import 'package:channels/network/real_time_data_base_services.dart';
 import 'package:flutter/material.dart';
 
 class Channels extends StatefulWidget {
@@ -31,6 +32,7 @@ class _ChannelsState extends State<Channels> {
   void removeChannel(int index) {
     Channel channel = channels.removeAt(index);
     FireStoreServices.removeChannel(channel);
+    RealTimeDataBaseServices.removeChannel(channel);
     setState(() {});
   }
 

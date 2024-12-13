@@ -172,6 +172,11 @@ class FireStoreServices {
       });
     }
 
+    List messagesRefs = (await chatRef.get()).get('messages');
+    for (DocumentReference messageRef in messagesRefs) {
+      await messageRef.delete();
+    }
+
     await channelRef.delete();
     await chatRef.delete();
   }
