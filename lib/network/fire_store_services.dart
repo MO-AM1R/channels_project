@@ -176,8 +176,9 @@ class FireStoreServices {
     await chatRef.delete();
   }
 
-  static addUser(String userId, String userName) async {
+  static addUser(String userName) async {
     try {
+      String userId = FirebaseAuthServices.getUserId;
       DocumentReference userDoc =
       FirebaseFirestore.instance.collection('/users').doc(userId);
 

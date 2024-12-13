@@ -8,7 +8,11 @@ import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
   final Function loggedIn;
-  const LoginPage({super.key, required this.loggedIn});
+
+  const LoginPage({
+    super.key,
+    required this.loggedIn,
+  });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,8 +20,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController email = TextEditingController(),
-      password = TextEditingController();
+      password = TextEditingController(),
+      phone = TextEditingController();
 
+  String selectedMethod = 'email';
   bool isLoading = false;
   String error = '';
   late Timer delay;
@@ -27,21 +33,29 @@ class _LoginPageState extends State<LoginPage> {
       isLoading = true;
     });
 
-    try {
+    if (selectedMethod == 'email') {
       if (email.text.isNotEmpty && password.text.isNotEmpty) {
-        await FirebaseAuthServices.loginWithEmail(email.text, password.text);
-        widget.loggedIn();
+        try {
+          await FirebaseAuthServices.loginWithEmail(email.text, password.text);
+        } catch (_) {
+          error = 'Incorrect password or email';
+        }
       } else {
-        setState(() {
-          error = 'Please fill all fields';
-        });
+        error = 'Please fill all fields';
+      }
+      widget.loggedIn();
+    } else {
+      if (phone.text.isNotEmpty) {
+        try {
+          await FirebaseAuthServices.loginWithPhone(phone.text);
+        } catch (_) {
+          error = 'Incorrect phone number';
+        }
+      } else {
+        error = 'Please fill all fields';
       }
     }
-    catch(exception){
-      setState(() {
-        error = 'Incorrect Email or Password';
-      });
-    }
+    setState(() {});
 
     delay = Timer(const Duration(seconds: 2), () {
       setState(() {
@@ -60,6 +74,44 @@ class _LoginPageState extends State<LoginPage> {
     delay.cancel();
   }
 
+  Widget buildEmailLogin() {
+    return Column(
+      children: [
+        CustomTextField(
+          controller: email,
+          icon: Icons.email,
+          label: 'Email',
+        ),
+        const SizedBox(height: 30),
+        CustomTextField(
+          controller: password,
+          icon: Icons.password,
+          obscureText: true,
+          label: 'Password',
+        ),
+      ],
+    );
+  }
+
+  Widget buildPhoneLogin() {
+    return CustomTextField(
+      controller: phone,
+      icon: Icons.phone,
+      textInputType: TextInputType.phone,
+      label: 'Phone Number',
+    );
+  }
+
+  Widget buildLoginContent() {
+    switch (selectedMethod) {
+      case 'phone':
+        return buildPhoneLogin();
+      case 'email':
+      default:
+        return buildEmailLogin();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,73 +122,57 @@ class _LoginPageState extends State<LoginPage> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(
-                  height: 80,
+                const SizedBox(height: 80),
+                const Icon(Icons.login, size: 180, color: Colors.black),
+                const SizedBox(height: 50),
+                buildLoginContent(),
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    error,
+                    style: const TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.w500),
+                  ),
                 ),
-                const Icon(
-                  Icons.login,
-                  size: 180,
-                  color: Colors.black,
+                const SizedBox(height: 20),
+                LoginOptions(
+                    option1Src: 'google.png',
+                    option1Func: () {
+                      setState(() {
+                        /// TODO: google sign in
+                      });
+                    },
+                    option2Func: () {
+                      setState(() {
+                        selectedMethod = selectedMethod == 'email' ? 'phone' : 'email';
+                      });
+                    },
+                    option2Src: selectedMethod == 'email' ? 'phone.png' : 'email.png'),
+                const SizedBox(height: 20),
+                InkWell(
+                  onTap: () {
+                    navigationKey.currentState!
+                        .pushReplacementNamed('/register');
+                  },
+                  overlayColor:
+                      const WidgetStatePropertyAll(Colors.transparent),
+                  child: const Text(
+                    'I don\'t have an account',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
-                const SizedBox(
-                  height: 50,
-                ),
-                Column(
-                  children: [
-                    CustomTextField(
-                      controller: email,
-                      icon: Icons.email,
-                      label: 'Email',
-                    ),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    CustomTextField(
-                      controller: password,
-                      icon: Icons.password,
-                      obscureText: true,
-                      label: 'Password',
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        error,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w500,
-                        ),
+                const SizedBox(height: 20),
+                isLoading
+                    ? const CircularProgressIndicator(color: Colors.black)
+                    : BlackButton(
+                        onTap: loginProcess,
+                        text: 'Login',
                       ),
-                    ),
-                    const LoginOptions(),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    InkWell(
-                        onTap: () {
-                          navigationKey.currentState!
-                              .pushReplacementNamed('/register');
-                        },
-                        overlayColor: const WidgetStatePropertyAll(Colors.transparent),
-                        child: const Text('I don\'t have an account',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline
-                            ))),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.black,
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 50),
-                            child: BlackButton(onTap: loginProcess, text: 'Login',),
-                          ),
-                  ],
-                ),
               ],
             ),
           ),

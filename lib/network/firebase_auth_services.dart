@@ -8,24 +8,24 @@ class FirebaseAuthServices {
     await _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  static Future<void> registerWithEmail(String email, String password) async{
+  static Future<void> registerWithEmail(String email, String password) async {
     await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
   }
 
   static Future<void> loginWithPhone(String phone) async {
-    try {
-      await _auth.signInWithPhoneNumber(phone);
-    } catch (exception) {
-      log(exception.toString());
-    }
+    await _auth.signInWithPhoneNumber(phone);
   }
 
   static Future<void> registerWithPhone(String phone) async {
     try {
-      // await _auth.verifyPhoneNumber(
-      //     phoneNumber: phone,
-      //     verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {});
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phone,
+        verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
+        verificationFailed: (FirebaseAuthException error) {},
+        codeSent: (String verificationId, int? forceResendingToken) {},
+        codeAutoRetrievalTimeout: (String verificationId) {},
+      );
     } catch (exception) {
       log(exception.toString());
     }

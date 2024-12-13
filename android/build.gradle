@@ -1,3 +1,15 @@
+buildscript {
+    ext.kotlin_version = '1.9.22'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Add or modify this line to match the required version
+        classpath 'com.android.tools.build:gradle:7.3.1'  // Use the appropriate version
+    }
+}
+
 allprojects {
     repositories {
         google()

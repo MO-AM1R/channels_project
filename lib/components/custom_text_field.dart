@@ -5,12 +5,14 @@ class CustomTextField extends StatelessWidget {
   final IconData icon;
   final bool obscureText;
   final String label;
+  final TextInputType textInputType;
 
   const CustomTextField(
       {super.key,
         required this.controller,
         required this.icon,
         required this.label,
+        this.textInputType = TextInputType.text,
         this.obscureText = false});
 
   @override
@@ -32,6 +34,7 @@ class CustomTextField extends StatelessWidget {
         ),
         prefixIcon: Icon(icon, color: Colors.black),
       ),
+      keyboardType: textInputType,
       style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 22),
       obscureText: obscureText,
     );

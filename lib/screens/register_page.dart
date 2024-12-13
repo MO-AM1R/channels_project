@@ -19,8 +19,10 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   TextEditingController email = TextEditingController(),
       password = TextEditingController(),
-      userName = TextEditingController();
+      userName = TextEditingController(),
+      phone = TextEditingController();
 
+  String selectedMethod = 'email';
   bool isLoading = false;
   String error = '';
   late Timer delay;
@@ -30,33 +32,48 @@ class _RegisterPageState extends State<RegisterPage> {
       isLoading = true;
     });
 
-    try {
+    if (selectedMethod == 'email') {
       if (email.text.isNotEmpty &&
           password.text.isNotEmpty &&
           userName.text.isNotEmpty) {
+        try {
+          await FirebaseAuthServices.registerWithEmail(
+              email.text, password.text);
+          await FireStoreServices.addUser(userName.text);
 
-        await FirebaseAuthServices.registerWithEmail(email.text, password.text);
+          user = User(
+              userName: userName.text,
+              id: FirebaseAuthServices.getUserId,
+              subscribedChannels: []);
 
-        await FireStoreServices.addUser(
-            FirebaseAuthServices.getUserId, userName.text);
+          initialized = true;
 
-        user = User(
-            userName: userName.text,
-            id: FirebaseAuthServices.getUserId,
-            subscribedChannels: []);
-
-        initialized = true;
-
-        navigationKey.currentState!.pushReplacementNamed('/home');
-        return;
-      } else {
+          navigationKey.currentState!.pushReplacementNamed('/home');
+          return;
+        } catch (exception) {
+          if (password.text.length < 6) {
+            error = 'Password should be at least 6 characters';
+          } else {
+            error = 'The account already exist';
+          }
+        }
+      }
+      else {
         error = 'Please fill all fields';
       }
-    } catch (exception) {
-      if (password.text.length < 6) {
-        error = 'Password should be at least 6 characters';
-      } else {
-        error = 'The account already exist';
+    }
+    else{
+      if (phone.text.isNotEmpty) {
+        try {
+          await FirebaseAuthServices.registerWithPhone(phone.text);
+          /// TODO: got to the otp step
+          return;
+        } catch (exception) {
+          error = 'The phone number is incorrect';
+        }
+      }
+      else {
+        error = 'Please fill all fields';
       }
     }
 
@@ -75,6 +92,44 @@ class _RegisterPageState extends State<RegisterPage> {
   void dispose() {
     super.dispose();
     delay.cancel();
+  }
+
+  Widget buildEmailLogin() {
+    return Column(
+      children: [
+        CustomTextField(
+          controller: email,
+          icon: Icons.email,
+          label: 'Email',
+        ),
+        const SizedBox(height: 30),
+        CustomTextField(
+          controller: password,
+          icon: Icons.password,
+          obscureText: true,
+          label: 'Password',
+        ),
+      ],
+    );
+  }
+
+  Widget buildPhoneLogin() {
+    return CustomTextField(
+      controller: phone,
+      icon: Icons.phone,
+      textInputType: TextInputType.phone,
+      label: 'Phone Number',
+    );
+  }
+
+  Widget buildLoginContent() {
+    switch (selectedMethod) {
+      case 'phone':
+        return buildPhoneLogin();
+      case 'email':
+      default:
+        return buildEmailLogin();
+    }
   }
 
   @override
@@ -106,18 +161,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       label: 'User Name',
                     ),
                     const SizedBox(height: 20),
-                    CustomTextField(
-                      controller: email,
-                      icon: Icons.email,
-                      label: 'Email',
-                    ),
-                    const SizedBox(height: 20),
-                    CustomTextField(
-                      controller: password,
-                      icon: Icons.password,
-                      obscureText: true,
-                      label: 'Password',
-                    ),
+                    buildLoginContent(),
                     const SizedBox(height: 10),
                     Align(
                       alignment: Alignment.centerLeft,
@@ -129,7 +173,22 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ),
                     ),
-                    const LoginOptions(),
+                    LoginOptions(
+                        option1Src: 'google.png',
+                        option1Func: () {
+                          setState(() {
+                            /// TODO: google sign in
+                          });
+                        },
+                        option2Func: () {
+                          setState(() {
+                            selectedMethod =
+                                selectedMethod == 'email' ? 'phone' : 'email';
+                          });
+                        },
+                        option2Src: selectedMethod == 'email'
+                            ? 'phone.png'
+                            : 'email.png'),
                     const SizedBox(
                       height: 30,
                     ),
@@ -154,7 +213,11 @@ class _RegisterPageState extends State<RegisterPage> {
                         : Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 50),
                             child: BlackButton(
-                                onTap: registerProcess, text: 'Register'),
+                              onTap: registerProcess,
+                              text: selectedMethod == 'email'
+                                  ? 'Register'
+                                  : 'Send OTP',
+                            ),
                           ),
                     const SizedBox(
                       height: 30,
