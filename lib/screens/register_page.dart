@@ -65,9 +65,11 @@ class _RegisterPageState extends State<RegisterPage> {
     else{
       if (phone.text.isNotEmpty) {
         try {
-          await FirebaseAuthServices.registerWithPhone(phone.text);
-          /// TODO: got to the otp step
-          return;
+          await FirebaseAuthServices.registerWithPhone(phone.text, (){
+            setState(() {
+              error = "Verification failed. Please try again.";
+            });
+          });
         } catch (exception) {
           error = 'The phone number is incorrect';
         }

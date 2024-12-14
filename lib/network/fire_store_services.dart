@@ -138,6 +138,7 @@ class FireStoreServices {
       _fStore.collection('chats').doc(channel.chat.id);
 
       await chatRef.set({
+        'id': channel.chat.id.toString(),
         'messages': [],
       });
 
@@ -146,6 +147,7 @@ class FireStoreServices {
         'imageUrl': channel.imageUrl,
         'description': channel.description,
         'chat': chatRef,
+        'id': channel.id.toString(),
       });
 
       log('Channel and chat added successfully with specific IDs.');

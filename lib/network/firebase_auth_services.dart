@@ -1,5 +1,8 @@
 import 'dart:developer';
+import 'package:channels/main.dart';
+import 'package:channels/screens/otp_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class FirebaseAuthServices {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -17,14 +20,23 @@ class FirebaseAuthServices {
     await _auth.signInWithPhoneNumber(phone);
   }
 
-  static Future<void> registerWithPhone(String phone) async {
+  static Future<void> registerWithPhone(String phone, Function errorFunc) async {
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: phone,
         verificationCompleted: (PhoneAuthCredential phoneAuthCredential) {},
-        verificationFailed: (FirebaseAuthException error) {},
-        codeSent: (String verificationId, int? forceResendingToken) {},
-        codeAutoRetrievalTimeout: (String verificationId) {},
+        verificationFailed: (FirebaseAuthException error) {
+          log("Verification failed: ${error.message}");
+          errorFunc();
+        },
+        codeSent: (String verificationId, int? forceResendingToken) {
+          navigationKey.currentState!.pushReplacement(MaterialPageRoute(builder: (context) {
+            return OtpPage(verificationId: verificationId);
+          },));
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          log('Timed out');
+        },
       );
     } catch (exception) {
       log(exception.toString());
