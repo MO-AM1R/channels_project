@@ -61,5 +61,13 @@ flutter {
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+    // Firebase Authentication library (version managed by the BoM)
+    implementation("com.google.firebase:firebase-auth")
+
+    // Google Play services authentication library
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.3'
 }
