@@ -37,17 +37,18 @@ class _LoginPageState extends State<LoginPage> {
       if (email.text.isNotEmpty && password.text.isNotEmpty) {
         try {
           await FirebaseAuthServices.loginWithEmail(email.text, password.text);
+          widget.loggedIn();
         } catch (_) {
           error = 'Incorrect password or email';
         }
       } else {
         error = 'Please fill all fields';
       }
-      widget.loggedIn();
     } else {
       if (phone.text.isNotEmpty) {
         try {
           await FirebaseAuthServices.loginWithPhone(phone.text);
+          widget.loggedIn();
         } catch (_) {
           error = 'Incorrect phone number';
         }
@@ -66,6 +67,18 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<void> loginInWithGoogle() async {
+    bool loggedIn = await FirebaseAuthServices.signInWithGoogle();
+
+    if (!loggedIn) {
+      setState(() {
+        error = 'Error hav been occurred';
+      });
+    } else {
+      widget.loggedIn();
+    }
   }
 
   @override
@@ -139,16 +152,16 @@ class _LoginPageState extends State<LoginPage> {
                 LoginOptions(
                     option1Src: 'google.png',
                     option1Func: () {
-                      setState(() {
-                        /// TODO: google sign in
-                      });
+                      loginInWithGoogle();
                     },
                     option2Func: () {
                       setState(() {
-                        selectedMethod = selectedMethod == 'email' ? 'phone' : 'email';
+                        selectedMethod =
+                            selectedMethod == 'email' ? 'phone' : 'email';
                       });
                     },
-                    option2Src: selectedMethod == 'email' ? 'phone.png' : 'email.png'),
+                    option2Src:
+                        selectedMethod == 'email' ? 'phone.png' : 'email.png'),
                 const SizedBox(height: 20),
                 InkWell(
                   onTap: () {

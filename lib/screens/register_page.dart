@@ -4,9 +4,7 @@ import 'package:channels/components/custom_text_field.dart';
 import 'package:channels/components/login_options.dart';
 import 'package:channels/constants.dart';
 import 'package:channels/main.dart';
-import 'package:channels/models/user.dart';
 import 'package:channels/network/firebase_auth_services.dart';
-import 'package:channels/network/fire_store_services.dart';
 import 'package:flutter/material.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -38,13 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
           userName.text.isNotEmpty) {
         try {
           await FirebaseAuthServices.registerWithEmail(
-              email.text, password.text);
-          await FireStoreServices.addUser(userName.text);
-
-          user = User(
-              userName: userName.text,
-              id: FirebaseAuthServices.getUserId,
-              subscribedChannels: []);
+              email.text, password.text, userName.text);
 
           initialized = true;
 
@@ -88,6 +80,19 @@ class _RegisterPageState extends State<RegisterPage> {
     setState(() {
       isLoading = false;
     });
+  }
+
+  Future<void> registerWithGoogle() async {
+    bool loggedIn = await FirebaseAuthServices.signInWithGoogle();
+
+    if (!loggedIn) {
+      setState(() {
+        error = 'Error hav been occurred';
+      });
+    } else {
+      initialized = true;
+      navigationKey.currentState!.pushReplacementNamed('/home');
+    }
   }
 
   @override
@@ -179,7 +184,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         option1Src: 'google.png',
                         option1Func: () {
                           setState(() {
-                            /// TODO: google sign in
+                            registerWithGoogle();
                           });
                         },
                         option2Func: () {
